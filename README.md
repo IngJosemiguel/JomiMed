@@ -1,36 +1,103 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JomiMed - Clinical SaaS Platform
 
-## Getting Started
+![Status](https://img.shields.io/badge/Status-Production%20Ready-success)
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![Prisma](https://img.shields.io/badge/Prisma-ORM-blue)
 
-First, run the development server:
+**JomiMed** is a comprehensive, multi-tenant SaaS platform designed for medical clinics. It provides a seamless experience for **Doctors**, **Patients**, and **Administrators**, featuring robust financial management, digital medical records (EMR), and automated scheduling.
+
+## 🚀 Key Features
+
+### 🏢 Multi-Tenancy & SaaS
+
+- **Subscription Tiers:** Free, Pro, and Enterprise plans with strictly enforced limits (Storage, Users, Patients).
+- **Clinic Isolation:** Data strict separation per clinic using `clinicId` at the database level.
+- **Branding:** Customizable clinic settings (Logo, Colors, Currency).
+
+### 🩺 Doctor Portal
+
+- **Smart Agenda:** Visual daily schedule with status tracking (Waiting, In-Progress, Completed).
+- **Consultation Mode:**
+  - Structured SOAP Notes (Subjective, Objective, Assessment, Plan).
+  - Medical History context (Allergies, Chronic Conditions).
+  - **PDF Prescriptions:** One-click generation of professional recipes.
+  - **Auto-Email:** Patients receive a summary of their visit automatically.
+
+### 🏥 Patient Portal
+
+- **Self-Service:** Patients can view their own medical history, lab results, and prescriptions.
+- **Appointments:** Book, reschedule, or cancel appointments online.
+- **Secure Access:** Dedicated login portal separate from administrative staff.
+
+### 💰 Finance & Administration
+
+- **Invoicing:** Create professional invoices with tax calculations.
+- **Payments:** Record partial or full payments (Cash, Card, Transfer) with balance tracking.
+- **Dashboard:** Real-time financial analytics, patient growth charts, and occupancy rates.
+- **Audit Logs:** Full traceability of system actions for security and compliance.
+
+## 🛠️ Technology Stack
+
+- **Framework:** [Next.js 14](https://nextjs.org/) (App Router, Server Actions)
+- **Database:** PostgreSQL (Managed via [Prisma ORM](https://www.prisma.io/))
+- **Styling:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Authentication:** Custom Secure JWT with RBAC (Role-Based Access Control).
+- **PDF Generation:** `jspdf` & `jspdf-autotable`.
+- **Email:** `nodemailer`.
+
+## 📦 Installation & Setup
+
+1. **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/your-repo/jomimed.git
+    cd jomimed
+    ```
+
+2. **Install dependencies:**
+
+    ```bash
+    npm install
+    ```
+
+3. **Environment Setup:**
+    Create a `.env` file in the root:
+
+    ```env
+    DATABASE_URL="postgresql://user:password@localhost:5432/jomimed?schema=public"
+    JWT_SECRET="super-secret-key-change-me"
+    NEXT_PUBLIC_APP_URL="http://localhost:3000"
+    ```
+
+4. **Database Migration:**
+
+    ```bash
+    npx prisma migrate dev --name init
+    npx prisma db seed  # (Optional) Seeds initial admin user
+    ```
+
+5. **Run Development Server:**
+
+    ```bash
+    npm run dev
+    ```
+
+## 🏗️ Project Structure
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+src/
+├── app/                 # Next.js App Router (Pages & API)
+│   ├── api/             # Backend API Routes
+│   ├── dashboard/       # Admin & Doctor Dashboard
+│   ├── portal/          # Patient Portal
+│   └── (auth)/          # Login & Signup Pages
+├── core/                # Business Logic (Clean Architecture)
+│   ├── application/     # Use Cases & Services
+│   └── domain/          # Entities & Interfaces
+├── infrastructure/      # External Services (DB, Auth, Email)
+└── lib/                 # Shared Utilities
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📜 License
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is proprietary software developed for JomiMed Inc.

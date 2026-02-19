@@ -1,0 +1,321 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// CORE & IAM (Identity and Access Management)
+// -----------------------------------------------------------------------------
+
+model Clinic {
+  id              String   @id @default(cuid())
+  name            String
+  slug            String   @unique
+  status          String   @default("ACTIVE") // ACTIVE, SUSPENDED, ARCHIVED
+  
+  // Branding
+  logoUrl         String?
+  primaryColor    String?  @default("#3b82f6")
+  secondaryColor  String?
+  
+  // Configuration
+  timezone        String   @default("UTC")
+  currency        String   @default("USD")
+  locale          String   @default("en-US")
+  
+  // JSON Settings (Hours, Notifications, etc.)
+  settings        Json?    @default("{}")
+
+  // SaaS
+  subscription Subscription?
+
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  users           User[]
+  roles           Role[]
+  patients        Patient[]
+  appointments    Appointment[]
+  medicalRecords  MedicalRecord[]
+  invoices        Invoice[]
+  customFields    CustomField[]
+  formTemplates   FormTemplate[]
+  auditLogs       AuditLog[]
+
+  @@map("clinics")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  phone         String?
+  avatarUrl     String?
+  
+  // Doctor/Staff Specific
+  specialization String?
+  medicalLicense String?
+  isActive      Boolean  @default(true)
+  failedAttempts Int     @default(0)
+  lockUntil     DateTime?
+  
+  clinicId      String
+  clinic        Clinic   @relation(fields: [clinicId], references: [id])
+  
+  roleId        String
+  role          Role     @relation(fields: [roleId], references: [id])
+
+  // Relations
+  appointmentsAsDoctor Appointment[] @relation("DoctorAppointments")
+  recordedMedicalRecords MedicalRecord[] @relation("DoctorRecords")
+  auditLogs     AuditLog[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isSystem    Boolean  @default(false) // System roles cannot be deleted
+  
+  // Permissions are stored as a JSON array of strings: ["patient:read", "billing:write"]
+  permissions Json     @default("[]") 
+  
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id])
+  
+  users       User[]
+
+  @@map("roles")
+}
+
+// -----------------------------------------------------------------------------
+// CUSTOMIZATION ENGINE (Dynamic Forms)
+// -----------------------------------------------------------------------------
+
+model CustomField {
+  id          String   @id @default(cuid())
+  name        String
+  label       String
+  type        String   // TEXT, NUMBER, DATE, SELECT, CHECKBOX, TEXTAREA
+  entityType  String   // PATIENT, APPOINTMENT, CONSULTATION
+  options     Json?    // For SELECT/CHECKBOX: ["Option A", "Option B"]
+  isRequired  Boolean  @default(false)
+  order       Int      @default(0)
+  
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id])
+  
+  createdAt   DateTime @default(now())
+
+  @@map("custom_fields")
+}
+
+model FormTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // HISTORY, PRESCRIPTION, CONSENT
+  content     Json     // JSON structure of the form layout
+  isDefault   Boolean  @default(false)
+  
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("form_templates")
+}
+
+// -----------------------------------------------------------------------------
+// CLINICAL DOMAIN
+// -----------------------------------------------------------------------------
+
+model Patient {
+  id             String   @id @default(cuid())
+  firstName      String
+  lastName       String
+  dateOfBirth    DateTime
+  gender         String?
+  documentType   String   @default("DNI")
+  documentNumber String
+  email          String?
+  phone          String?
+  address        String?
+  photoUrl       String?
+  
+  // Dynamic Data
+  customData     Json?    // Stores values for CustomFields: { "field_id": "value" }
+  
+  clinicId       String
+  clinic         Clinic   @relation(fields: [clinicId], references: [id])
+
+  appointments   Appointment[]
+  medicalRecords MedicalRecord[]
+  invoices       Invoice[]
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([clinicId, documentNumber])
+  @@map("patients")
+}
+
+model Appointment {
+  id          String   @id @default(cuid())
+  datetime    DateTime
+  duration    Int      @default(30) // Minutes
+  status      String   @default("SCHEDULED") // SCHEDULED, CONFIRMED, CANCELED, COMPLETED, NO_SHOW
+  reason      String?
+  notes       String?
+  
+  cardinalityId String? // For recursion (optional)
+
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  
+  doctorId    String
+  doctor      User     @relation("DoctorAppointments", fields: [doctorId], references: [id])
+  
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([clinicId, datetime])
+  @@map("appointments")
+}
+
+model MedicalRecord {
+  id          String   @id @default(cuid())
+  type        String   // CONSULTATION, EVOLUTION, LAB_RESULT
+  date        DateTime @default(now())
+  
+  // The content of the record, potentially verified against a FormTemplate
+  content     Json     // { "subjective": "...", "objective": "..." }
+  
+  attachments Json?    // Array of file URLs
+  
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id])
+  
+  doctorId    String
+  doctor      User     @relation("DoctorRecords", fields: [doctorId], references: [id])
+  
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id])
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("medical_records")
+}
+
+// -----------------------------------------------------------------------------
+// FINANCE & SAAS
+// -----------------------------------------------------------------------------
+
+model Invoice {
+  id          String   @id @default(cuid())
+  number      String   // Sequential invoice number per clinic
+  status      String   @default("DRAFT") // DRAFT, ISSUED, PAID, VOID
+  issueDate   DateTime @default(now())
+  dueDate     DateTime?
+  
+  totalAmount Decimal  @db.Decimal(10, 2)
+  paidAmount  Decimal  @default(0) @db.Decimal(10, 2)
+  currency    String   @default("USD")
+  
+  items       Json     // Array of items: [{ description, quantity, price }]
+  
+  patientId   String?
+  patient     Patient? @relation(fields: [patientId], references: [id])
+  
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id])
+  
+  payments    Payment[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([clinicId, number])
+  @@map("invoices")
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  amount      Decimal  @db.Decimal(10, 2)
+  method      String   // CASH, CARD, TRANSFER, INSURANCE
+  date        DateTime @default(now())
+  reference   String?
+  
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  
+  @@map("payments")
+}
+
+// -----------------------------------------------------------------------------
+// AUDIT & LOGGING
+// -----------------------------------------------------------------------------
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String   // CREATE, UPDATE, DELETE, LOGIN
+  resource    String   // Patient, User, Settings
+  resourceId  String?
+  details     Json?    // Old vs New values
+  ipAddress   String?
+  userAgent   String?
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id])
+
+  createdAt   DateTime @default(now())
+
+  @@index([clinicId, createdAt])
+  @@map("audit_logs")
+}
+
+model Subscription {
+  id          String   @id @default(cuid())
+  plan        String   @default("FREE") // FREE, PRO, ENTERPRISE
+  status      String   @default("ACTIVE") // ACTIVE, CANCELED, PAST_DUE
+  startDate   DateTime @default(now())
+  endDate     DateTime?
+  
+  storageLimit Int     @default(1073741824) // 1GB default
+  storageUsed  Int     @default(0)
+  
+  usersLimit   Int     @default(5)
+  usersUsed    Int     @default(1)
+
+  clinicId    String   @unique
+  clinic      Clinic   @relation(fields: [clinicId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("subscriptions")
+}

@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  # JomiMed App
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jomimed-app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/jomimed?schema=public
+      - JWT_SECRET=${JWT_SECRET}
+      - SMTP_HOST=${SMTP_HOST}
+      - NODE_ENV=production
+    depends_on:
+      - db
+
+  # PostgreSQL (For self-hosting, otherwise use Neon/AWS RDS)
+  db:
+    image: postgres:15-alpine
+    container_name: jomimed-db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: jomimed
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  db_data:
