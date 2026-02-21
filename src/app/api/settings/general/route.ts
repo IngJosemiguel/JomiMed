@@ -7,7 +7,7 @@ const UpdateSettingsSchema = z.object({
     primaryColor: z.string().regex(/^#/, "Invalid color").optional(),
     timezone: z.string().optional(),
     currency: z.string().optional(),
-    settings: z.record(z.any()).optional(), // JSON config for hours, etc.
+    settings: z.record(z.string(), z.any()).optional(), // JSON config for hours, etc.
 });
 
 export async function GET(request: Request) {

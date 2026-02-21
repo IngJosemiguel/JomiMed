@@ -28,8 +28,8 @@ export default function SettingsPage() {
                             key={item.id}
                             onClick={() => setActiveTab(item.id)}
                             className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${activeTab === item.id
-                                    ? "bg-blue-50 text-blue-700"
-                                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                                ? "bg-blue-50 text-blue-700"
+                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                                 }`}
                         >
                             <item.icon className={`w-5 h-5 ${activeTab === item.id ? "text-blue-600" : "text-gray-400"}`} />
@@ -45,7 +45,7 @@ export default function SettingsPage() {
                         <div className="space-y-6 animate-in fade-in duration-300">
                             <div>
                                 <h3 className="text-lg font-medium text-gray-900">Clinic Profile</h3>
-                                <p className="text-sm text-gray-500">Update your organization's public information.</p>
+                                <p className="text-sm text-gray-500">Update your organization&apos;s public information.</p>
                             </div>
                             <div className="space-y-4 max-w-lg">
                                 <div>

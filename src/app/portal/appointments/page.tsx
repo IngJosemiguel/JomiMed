@@ -45,7 +45,7 @@ export default function PatientAppointmentsPage() {
                 <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-gray-100">
                     <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                     <h3 className="text-lg font-medium text-gray-900">No appointments yet</h3>
-                    <p className="text-gray-500 mb-6">You haven't booked any appointments.</p>
+                    <p className="text-gray-500 mb-6">You haven&apos;t booked any appointments.</p>
                 </div>
             ) : (
                 <div className="space-y-8">
@@ -107,8 +107,8 @@ function AppointmentCard({ appt, isUpcoming }: { appt: any, isUpcoming?: boolean
                         </p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${appt.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' :
-                            appt.status === 'SCHEDULED' ? 'bg-blue-100 text-blue-700' :
-                                'bg-gray-100 text-gray-700'
+                        appt.status === 'SCHEDULED' ? 'bg-blue-100 text-blue-700' :
+                            'bg-gray-100 text-gray-700'
                         }`}>
                         {appt.status}
                     </span>

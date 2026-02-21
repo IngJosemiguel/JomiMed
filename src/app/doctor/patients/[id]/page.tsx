@@ -14,11 +14,7 @@ export default function DoctorPatientDetailPage() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'info' | 'history' | 'appointments'>('info');
 
-    useEffect(() => {
-        if (id) fetchPatientDetails();
-    }, [id]);
-
-    const fetchPatientDetails = async () => {
+    const fetchPatientDetails = React.useCallback(async () => {
         try {
             const res = await fetch(`/api/patients/${id}`);
             if (res.ok) {
@@ -30,7 +26,11 @@ export default function DoctorPatientDetailPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        if (id) fetchPatientDetails();
+    }, [id, fetchPatientDetails]);
 
     if (loading) return <div className="p-8 text-center">Loading patient profile...</div>;
     if (!patient) return <div className="p-8 text-center">Patient not found</div>;

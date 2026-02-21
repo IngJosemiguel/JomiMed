@@ -17,13 +17,7 @@ export default function PatientProfilePage() {
         emergencyContact: '' // Could be custom field
     });
 
-    useEffect(() => {
-        if (authUser?.id) {
-            fetchProfile();
-        }
-    }, [authUser]);
-
-    const fetchProfile = async () => {
+    const fetchProfile = React.useCallback(async () => {
         try {
             const res = await fetch(`/api/users/${authUser?.id}`);
             if (res.ok) {
@@ -42,7 +36,13 @@ export default function PatientProfilePage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [authUser?.id]);
+
+    useEffect(() => {
+        if (authUser?.id) {
+            fetchProfile();
+        }
+    }, [authUser, fetchProfile]);
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();

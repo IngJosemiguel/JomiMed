@@ -6,11 +6,12 @@ const prisma = new PrismaClient();
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const user = await prisma.user.findUnique({
-            where: { id: params.id },
+            where: { id: id },
             include: {
                 clinic: true,
                 role: true
@@ -39,9 +40,10 @@ export async function GET(
 
 export async function PUT(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const body = await request.json();
 
         // Destructure allowed fields to prevent arbitrary updates (e.g., roleId, clinicId)
@@ -72,7 +74,7 @@ export async function PUT(
         );
 
         const updatedUser = await prisma.user.update({
-            where: { id: params.id },
+            where: { id: id },
             data: updateData,
         });
 

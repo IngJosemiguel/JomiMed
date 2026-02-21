@@ -13,11 +13,7 @@ export default function InvoiceDetailPage() {
     const [invoice, setInvoice] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        if (id) fetchInvoice();
-    }, [id]);
-
-    const fetchInvoice = async () => {
+    const fetchInvoice = React.useCallback(async () => {
         try {
             const res = await fetch(`/api/finance/invoices/${id}`);
             if (!res.ok) throw new Error("Not found");
@@ -28,7 +24,11 @@ export default function InvoiceDetailPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id]);
+
+    useEffect(() => {
+        if (id) fetchInvoice();
+    }, [id, fetchInvoice]);
 
     const handleMarkAsPaid = async () => {
         const method = prompt("Enter payment method (CASH, CARD, TRANSFER):", "CASH");

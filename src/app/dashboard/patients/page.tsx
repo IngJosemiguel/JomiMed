@@ -10,11 +10,7 @@ export default function PatientsPage() {
     const [search, setSearch] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    useEffect(() => {
-        fetchPatients();
-    }, [search]);
-
-    const fetchPatients = async () => {
+    const fetchPatients = React.useCallback(async () => {
         setLoading(true);
         try {
             const query = search ? `?search=${search}` : '';
@@ -26,7 +22,11 @@ export default function PatientsPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [search]);
+
+    useEffect(() => {
+        fetchPatients();
+    }, [search, fetchPatients]);
 
     return (
         <div className="p-6 max-w-7xl mx-auto space-y-6">

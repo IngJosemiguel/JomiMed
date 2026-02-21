@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { apiHandler } from "@/lib/api-handler";
 import prisma from "@/lib/prisma";
 
-export const GET = apiHandler(async (req, { params }: { params: { id: string } }) => {
-    const { id } = params;
+export const GET = apiHandler(async (req, { params }: { params: Promise<{ id: string }> }) => {
+    const { id } = await params;
 
     // In a real app, verify user has access to this clinic/appointment
 

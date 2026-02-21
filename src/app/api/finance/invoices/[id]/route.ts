@@ -6,8 +6,8 @@ import prisma from "@/lib/prisma";
 const financeRepo = new PrismaFinanceRepository();
 const financeService = new FinanceService(financeRepo);
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
-    const { id } = params;
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     const invoice = await prisma.invoice.findUnique({
         where: { id },
         include: {
@@ -19,12 +19,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
     return NextResponse.json(invoice);
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
         const clinicId = request.headers.get("x-clinic-id");
         if (!clinicId) return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
 
-        const { id } = params;
+        const { id } = await params;
         const body = await request.json();
         const { status, amount, method } = body;
 

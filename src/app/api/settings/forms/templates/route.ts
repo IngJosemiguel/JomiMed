@@ -7,7 +7,7 @@ const repository = new PrismaFormTemplateRepository();
 const CreateTemplateSchema = z.object({
     name: z.string(),
     type: z.enum(["HISTORY", "PRESCRIPTION", "CONSENT"]),
-    content: z.record(z.any()), // Flexible JSON content for the form builder
+    content: z.record(z.string(), z.any()), // Flexible JSON content for the form builder
     isDefault: z.boolean().default(false),
 });
 

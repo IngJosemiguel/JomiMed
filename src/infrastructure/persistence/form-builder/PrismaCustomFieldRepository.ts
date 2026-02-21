@@ -24,7 +24,7 @@ export class PrismaCustomFieldRepository implements ICustomFieldRepository {
     async update(id: string, data: Partial<CustomField>): Promise<CustomField> {
         return prisma.customField.update({
             where: { id },
-            data,
+            data: data as any,
         });
     }
 

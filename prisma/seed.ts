@@ -14,7 +14,6 @@ async function main() {
             name: "Clínica Demo",
             slug: "clinica-demo",
             status: "ACTIVE",
-            subscriptionPlan: "ENTERPRISE",
             primaryColor: "#0070f3",
         },
     });

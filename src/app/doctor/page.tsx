@@ -24,7 +24,7 @@ export default function DoctorAgenda() {
                         <CalendarIcon className="w-6 h-6" />
                     </div>
                     <div>
-                        <h2 className="text-lg font-bold text-gray-900">Today's Schedule</h2>
+                        <h2 className="text-lg font-bold text-gray-900">Today&apos;s Schedule</h2>
                         <p className="text-sm text-gray-500">{date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                     </div>
                 </div>

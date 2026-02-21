@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Calendar, User, Clock, Save } from 'lucide-react';
 import Link from 'next/link';
 
-export default function NewAppointmentPage() {
+function AppointmentForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const prePatientId = searchParams.get('patientId');
@@ -176,5 +176,13 @@ export default function NewAppointmentPage() {
 
             </form>
         </div>
+    );
+}
+
+export default function NewAppointmentPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <AppointmentForm />
+        </Suspense>
     );
 }

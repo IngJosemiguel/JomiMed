@@ -13,7 +13,7 @@ export class PrismaMedicalRecordRepository implements IMedicalRecordRepository {
     async update(id: string, data: Partial<MedicalRecord>): Promise<MedicalRecord> {
         return prisma.medicalRecord.update({
             where: { id },
-            data,
+            data: data as any,
             include: { doctor: true }
         });
     }

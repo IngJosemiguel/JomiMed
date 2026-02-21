@@ -29,11 +29,7 @@ export default function ConsultationPage() {
         plan: ''
     });
 
-    useEffect(() => {
-        if (appointmentId) fetchContext();
-    }, [appointmentId]);
-
-    const fetchContext = async () => {
+    const fetchContext = React.useCallback(async () => {
         try {
             const res = await fetch(`/api/appointments/${appointmentId}`);
             if (!res.ok) throw new Error("Failed to load");
@@ -44,7 +40,11 @@ export default function ConsultationPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [appointmentId]);
+
+    useEffect(() => {
+        if (appointmentId) fetchContext();
+    }, [appointmentId, fetchContext]);
 
     const handleSave = async () => {
         try {

@@ -17,7 +17,7 @@ const CreatePatientSchema = z.object({
     phone: z.string().optional(),
     gender: z.string().optional(),
     address: z.string().optional(),
-    customData: z.record(z.any()).optional(),
+    customData: z.record(z.string(), z.any()).optional(),
 });
 
 export async function GET(request: Request) {

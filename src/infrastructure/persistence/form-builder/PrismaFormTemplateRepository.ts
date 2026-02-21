@@ -23,7 +23,7 @@ export class PrismaFormTemplateRepository implements IFormTemplateRepository {
     async update(id: string, data: Partial<FormTemplate>): Promise<FormTemplate> {
         return prisma.formTemplate.update({
             where: { id },
-            data,
+            data: data as any,
         });
     }
 
